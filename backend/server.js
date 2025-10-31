@@ -8,7 +8,11 @@ const projectRoutes = require("./routes/projectRoutes");
 const { fetchAllFromAPI, saveOrUpdateRecord } = require("./controller/projectController.js");
 
 const app = express();
-app.use(cors());
+app.use(cors({
+  origin: "http://localhost:5173", 
+  methods: ["GET", "POST", "PUT", "DELETE"],
+}
+));
 app.use(express.json());
 
 // connect DB

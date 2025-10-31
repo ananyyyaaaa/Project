@@ -1,0 +1,16 @@
+.metric-card {
+  background: #fff;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+  padding: 1.2rem;
+  border-radius: 12px;
+  text-align: center;
+  width: 250px;
+}
+
+.icon {
+  font-size: 2rem;
+}
+
+.metric-card h2 {
+  color: #2a7b45;
+}
