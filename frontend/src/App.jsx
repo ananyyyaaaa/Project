@@ -1,18 +1,17 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import Home from "./pages/Home";
-import Dashboard from "./pages/Dashboard";
-import Compare from "./pages/Compare";
-import EmploymentOverview from "./pages/EmploymentOverview";
+import { Routes, Route, Navigate } from 'react-router-dom'
+import Home from './pages/Home.jsx'
+import Dashboard from './pages/Dashboard.jsx'
+import WorkProgress from './pages/WorkProgress.jsx'
 
-const App = () => (
-  <Router>
+export default function App() {
+  return (
+    <div className="min-h-screen">
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/district/:name" element={<Dashboard />} />
-        <Route path="/compare" element={<Compare />} />
-        <Route path="/employment" element={<EmploymentOverview />} />
+        <Route path="/dashboard/:district" element={<Dashboard />} />
+        <Route path="/work-progress/:district" element={<WorkProgress />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
-    </Router>
-);
-
-export default App;
+    </div>
+  )
+}
