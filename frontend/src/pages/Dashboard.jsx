@@ -288,7 +288,7 @@ export default function Dashboard() {
 							)}
 
 							{/* Placeholder for other nav items */}
-							{activeNavItem !== 1 && activeNavItem !== 3 && activeNavItem !== 5 && activeNavItem !== 2 && activeNavItem !== 4 && activeNavItem !== 6 && activeNavItem !== 7(
+							{activeNavItem !== 1 && activeNavItem !== 3 && activeNavItem !== 5 && activeNavItem !== 2 && activeNavItem !== 6 && activeNavItem !== 7 && (
 								<div className="bg-white border-2 border-gray-200 rounded-xl p-12 text-center shadow-lg">
 									<div className="text-6xl mb-4">🚧</div>
 									<div className="text-gray-700 text-xl font-semibold mb-2">{navItems.find(item => item.id === activeNavItem)?.label}</div>
