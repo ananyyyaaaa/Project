@@ -11,7 +11,7 @@ const defaultOrigins = [
 	"http://localhost:5173",
 	"http://127.0.0.1:5173",
 ];
-const envOrigin = process.env.ALLOWED_ORIGIN;
+const envOrigin = process.env.FRONTEND_URL;
 const allowedOrigins = envOrigin ? [envOrigin, ...defaultOrigins] : defaultOrigins;
 
 app.use(cors({
