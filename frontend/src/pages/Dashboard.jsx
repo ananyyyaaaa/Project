@@ -4,8 +4,6 @@ import api from '../api/client'
 import EmploymentOverviewSection from '../components/EmploymentOverviewSection'
 import InclusionParticipationSection from '../components/InclusionParticipationSection'
 import WorkProgressSection from '../components/WorkProgressSection'
-import WagesPaymentSection from '../components/WagesPaymentSection'
-import CompareDistrictsSection from '../components/CompareDistrictsSection'
 import Header from '../components/Header'
 import Footer from '../components/Footer'
 
@@ -137,6 +135,7 @@ export default function Dashboard() {
 		{ id: 4, label: 'Expenditure and Efficiency' },
 		{ id: 5, label: 'Inclusion and Participation' },
 		{ id: 6, label: 'Compare yourself with other districts' },
+		{ id: 7, label: 'Leadership Board' },
 	]
 
 	return (
@@ -279,8 +278,13 @@ export default function Dashboard() {
 								<CompareDistrictsSection selectedYear={selectedYear} />
 							)}
 
+							{/* Leadership Board Section (Nav Item 7) */}
+							{activeNavItem === 7 && (
+								<LeaderboardSection selectedYear={selectedYear} />
+							)}
+
 							{/* Placeholder for other nav items */}
-							{activeNavItem !== 1 && activeNavItem !== 2 && activeNavItem !== 3 && activeNavItem !== 5 && activeNavItem !== 6 && (
+							{activeNavItem !== 1 && activeNavItem !== 3 && activeNavItem !== 5 && (
 								<div className="bg-white border-2 border-gray-200 rounded-xl p-12 text-center shadow-lg">
 									<div className="text-6xl mb-4">🚧</div>
 									<div className="text-gray-700 text-xl font-semibold mb-2">{navItems.find(item => item.id === activeNavItem)?.label}</div>
