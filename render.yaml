@@ -1,17 +1,18 @@
 services:
   - type: web
-    name: mgnrega-backend
+    name: project-backend
     env: node
     plan: free
     rootDir: backend
     buildCommand: npm install
-    startCommand: npm start
+    startCommand: node server.js
     envVars:
       - key: NODE_VERSION
         value: 18
+
   - type: web
-    name: mgnrega-frontend
+    name: project-frontend
     env: static
     rootDir: frontend
-    buildCommand: npm install && npm run build
+    buildCommand: npm run build
     staticPublishPath: dist
