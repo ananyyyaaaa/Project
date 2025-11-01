@@ -349,6 +349,9 @@ app.get("/api/data/:district", async (req, res) => {
 		let maxTotalIndividuals = 0;
 
 		const trends = [];
+		const monthlyWorksMap = new Map(); // Store monthly works data aggregated by month
+		const monthlyWagesMap = new Map(); // Store monthly wages for trend chart
+		
 		for (const r of records) {
 			// Sum monthly values
 			const hh = normalizeNum(r.Total_Households_Worked);
@@ -389,7 +392,40 @@ app.get("/api/data/:district", async (req, res) => {
 			const period = `${r.fin_year || finYear}-${r.month || ""}`.trim();
 			const value = normalizeNum(r.Total_Exp ?? r.Wages ?? 0);
 			if (period && value >= 0) trends.push({ period, value });
+			
+			// Monthly data aggregation (works and wages)
+			const month = r.month || '';
+			if (month) {
+				// Monthly wages for trend chart (in Lakhs)
+				const monthlyWage = normalizeNum(r.Wages ?? r.Total_Exp ?? 0) / 100000; // Convert to Lakhs
+				if (!monthlyWagesMap.has(month)) {
+					monthlyWagesMap.set(month, monthlyWage);
+				} else {
+					// Sum wages for the same month (if multiple records)
+					monthlyWagesMap.set(month, monthlyWagesMap.get(month) + monthlyWage);
+				}
+				
+				// Monthly works data for trendline chart - aggregate by month using max (cumulative values)
+				const monthlyCompleted = normalizeNum(r.Number_of_Completed_Works);
+				const monthlyOngoing = normalizeNum(r.Number_of_Ongoing_Works);
+				
+				if (!monthlyWorksMap.has(month)) {
+					monthlyWorksMap.set(month, {
+						month,
+						completedWorks: monthlyCompleted,
+						ongoingWorks: monthlyOngoing
+					});
+				} else {
+					// Use maximum value for cumulative metrics
+					const existing = monthlyWorksMap.get(month);
+					existing.completedWorks = Math.max(existing.completedWorks, monthlyCompleted);
+					existing.ongoingWorks = Math.max(existing.ongoingWorks, monthlyOngoing);
+				}
+			}
 		}
+		
+		// Convert map to array for monthly works trends
+		const monthlyWorksData = Array.from(monthlyWorksMap.values());
 
 		// Use latest record for cumulative values if available
 		if (latestRecord) {
@@ -442,6 +478,11 @@ app.get("/api/data/:district", async (req, res) => {
 				scStParticipationPct,
 			},
 			trends,
+			monthlyWorksTrends: monthlyWorksData, // Monthly works data for trendline
+			monthlyWagesTrends: Array.from(monthlyWagesMap.entries()).map(([month, value]) => ({ month, wagesLakhs: Math.round(value * 100) / 100 })).sort((a, b) => {
+				const monthOrder = ['Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec', 'Jan', 'Feb', 'Mar'];
+				return monthOrder.indexOf(a.month) - monthOrder.indexOf(b.month);
+			}), // Monthly wages in Lakhs, sorted by financial year order
 			meta: {
 				finYear,
 				district,

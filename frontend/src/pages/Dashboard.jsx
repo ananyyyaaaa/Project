@@ -4,6 +4,8 @@ import api from '../api/client'
 import EmploymentOverviewSection from '../components/EmploymentOverviewSection'
 import InclusionParticipationSection from '../components/InclusionParticipationSection'
 import WorkProgressSection from '../components/WorkProgressSection'
+import WagesPaymentSection from '../components/WagesPaymentSection'
+import CompareDistrictsSection from '../components/CompareDistrictsSection'
 import Header from '../components/Header'
 import Footer from '../components/Footer'
 
@@ -14,6 +16,7 @@ export default function Dashboard() {
 	const [employmentData, setEmploymentData] = useState(null)
 	const [inclusionData, setInclusionData] = useState(null)
 	const [workProgressData, setWorkProgressData] = useState(null)
+	const [wagesData, setWagesData] = useState(null)
 	const [loading, setLoading] = useState(false)
 	const [error, setError] = useState('')
 	const [selectedYear, setSelectedYear] = useState('')
@@ -110,6 +113,23 @@ export default function Dashboard() {
 		loadWorkProgressData()
 	}, [district, selectedYear, activeNavItem])
 
+	// Load wages data when Wages & Payment is active (nav item 2)
+	useEffect(() => {
+		async function loadWagesData() {
+			if (activeNavItem === 2 && selectedYear && district) {
+				try {
+					const res = await api.get(`/api/data/${encodeURIComponent(district)}?fin_year=${selectedYear}`)
+					console.log('Wages data response:', res.data)
+					setWagesData(res.data?.data)
+				} catch (e) {
+					console.error('Failed to load wages data:', e)
+					setWagesData(null)
+				}
+			}
+		}
+		loadWagesData()
+	}, [district, selectedYear, activeNavItem])
+
 	const navItems = [
 		{ id: 1, label: 'Employment Overview' },
 		{ id: 2, label: 'Wages and Payment Information' },
@@ -192,7 +212,11 @@ export default function Dashboard() {
 							{navItems.map((item) => (
 								<button
 									key={item.id}
-									onClick={() => setActiveNavItem(item.id)}
+									type="button"
+									onClick={(e) => {
+										e.preventDefault()
+										setActiveNavItem(item.id)
+									}}
 									className={`w-full text-left px-4 py-3 rounded-xl transition-all font-medium ${
 										activeNavItem === item.id
 											? 'bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg transform scale-105'
@@ -237,12 +261,26 @@ export default function Dashboard() {
 							{activeNavItem === 3 && (
 								<WorkProgressSection
 									workProgressData={workProgressData?.workProgress || null}
-									trendsData={workProgressData?.trends || []}
+									trendsData={workProgressData?.monthlyWorksTrends || []}
 								/>
 							)}
 
+							{/* Wages & Payment Section (Nav Item 2) */}
+							{activeNavItem === 2 && (
+								<WagesPaymentSection
+									wagesData={wagesData?.wages || null}
+									monthlyWagesTrends={wagesData?.monthlyWagesTrends || []}
+									meta={wagesData?.meta || {}}
+								/>
+							)}
+
+							{/* Compare Districts Section (Nav Item 6) */}
+							{activeNavItem === 6 && (
+								<CompareDistrictsSection selectedYear={selectedYear} />
+							)}
+
 							{/* Placeholder for other nav items */}
-							{activeNavItem !== 1 && activeNavItem !== 3 && activeNavItem !== 5 && (
+							{activeNavItem !== 1 && activeNavItem !== 2 && activeNavItem !== 3 && activeNavItem !== 5 && activeNavItem !== 6 && (
 								<div className="bg-white border-2 border-gray-200 rounded-xl p-12 text-center shadow-lg">
 									<div className="text-6xl mb-4">🚧</div>
 									<div className="text-gray-700 text-xl font-semibold mb-2">{navItems.find(item => item.id === activeNavItem)?.label}</div>
