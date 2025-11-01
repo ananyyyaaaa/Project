@@ -1,6 +1,9 @@
 import { useEffect, useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import api from '../api/client'
+import CompareDistrictsSection from '../components/CompareDistrictsSection'
+import LeaderboardSection from '../components/LeaderboardSection'
+import WagesPaymentSection from '../components/WagesPaymentSection'
 import EmploymentOverviewSection from '../components/EmploymentOverviewSection'
 import InclusionParticipationSection from '../components/InclusionParticipationSection'
 import WorkProgressSection from '../components/WorkProgressSection'
@@ -266,12 +269,13 @@ export default function Dashboard() {
 
 							{/* Wages & Payment Section (Nav Item 2) */}
 							{activeNavItem === 2 && (
-								<WagesPaymentSection
-									wagesData={wagesData?.wages || null}
-									monthlyWagesTrends={wagesData?.monthlyWagesTrends || []}
-									meta={wagesData?.meta || {}}
-								/>
+							<WagesPaymentSection
+								wagesData={wagesData?.wages || null}
+								monthlyWagesTrends={wagesData?.monthlyWagesTrends || []}
+								meta={wagesData?.meta || {}}
+							/>
 							)}
+
 
 							{/* Compare Districts Section (Nav Item 6) */}
 							{activeNavItem === 6 && (
