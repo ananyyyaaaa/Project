@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import mapImage from '../images/map.png'
 
 export default function Header({ showBackButton = false, backTo = '/', title = 'MGNREGA Dashboard' }) {
 	return (
@@ -6,7 +7,15 @@ export default function Header({ showBackButton = false, backTo = '/', title = '
 			<div className="max-w-7xl mx-auto px-4 py-4">
 				<div className="flex items-center justify-between flex-wrap gap-4">
 					<Link to="/" className="flex items-center gap-3 hover:opacity-80 transition">
-						<div className="text-3xl">🇮🇳</div>
+						<div className="image-container">
+							<img
+							src={mapImage}
+							alt="Manipur Landscape"
+							className="h-10 w-10"
+							/>
+							{/* <img src="/images/map.png" /> */}
+						</div>
+						
 						<div>
 							<div className="text-xs text-gray-600 font-medium">Government of India</div>
 							<div className="text-sm text-gray-800 font-semibold">{title}</div>
