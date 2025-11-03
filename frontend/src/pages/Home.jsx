@@ -11,6 +11,12 @@ export default function Home() {
 	const [loading, setLoading] = useState(false)
 	const [error, setError] = useState('')
 	const [selectedDistrict, setSelectedDistrict] = useState('')
+	const [locating, setLocating] = useState(false)
+	const [detectedDistrict, setDetectedDistrict] = useState('')
+	const [locationError, setLocationError] = useState('')
+	const [coords, setCoords] = useState(null)
+	const [addressText, setAddressText] = useState('')
+	const [locationLabel, setLocationLabel] = useState('')
 	const navigate = useNavigate()
 
 	useEffect(() => {
@@ -41,6 +47,56 @@ export default function Home() {
 		loadData()
 	}, [])
 
+	function matchDistrictName(name) {
+		if (!name || !Array.isArray(districts)) return ''
+		const norm = String(name).trim().toLowerCase()
+		const found = districts.find(d => String(d).trim().toLowerCase() === norm)
+		return found || ''
+	}
+
+	async function reverseGeocode(lat, lon) {
+		const url = `https://nominatim.openstreetmap.org/reverse?lat=${encodeURIComponent(lat)}&lon=${encodeURIComponent(lon)}&format=json&zoom=10&addressdetails=1`
+		const res = await fetch(url, { headers: { 'Accept': 'application/json' } })
+		if (!res.ok) throw new Error('Failed to reverse geocode')
+		return res.json()
+	}
+
+	async function detectLocation() {
+		if (!('geolocation' in navigator)) {
+			setLocationError('Geolocation not supported on this device')
+			return
+		}
+		setLocating(true)
+		setLocationError('')
+		try {
+			await new Promise((resolve, reject) => {
+				navigator.geolocation.getCurrentPosition(resolve, reject, {
+					enableHighAccuracy: false,
+					timeout: 10000,
+					maximumAge: 300000,
+				})
+			}).then(async (pos) => {
+				const { latitude, longitude } = pos.coords
+				setCoords({ lat: latitude, lon: longitude })
+				const data = await reverseGeocode(latitude, longitude)
+				const addr = data?.address || {}
+				const display = data?.display_name || [addr.village, addr.town, addr.city, addr.district, addr.state].filter(Boolean).join(', ')
+				setAddressText(display || '')
+				const candidates = [addr.district, addr.county, addr.state_district, addr.region]
+				const candidate = candidates.find(Boolean)
+				const matched = matchDistrictName(candidate)
+				setDetectedDistrict(matched || '')
+				// Short label for the button (e.g., Chandigarh)
+				const shortLabel = addr.city || addr.town || addr.village || addr.district || ''
+				setLocationLabel(shortLabel)
+			})
+		} catch (e) {
+			setLocationError('Unable to detect location')
+		} finally {
+			setLocating(false)
+		}
+	}
+
 	function handleDistrictChange(e) {
 		const district = e.target.value
 		setSelectedDistrict(district)
@@ -48,6 +104,18 @@ export default function Home() {
 			navigate(`/dashboard/${encodeURIComponent(district)}`)
 		}
 	}
+
+	const detectBtnClasses = locating
+		? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed'
+		: detectedDistrict || coords
+			? 'bg-green-100 text-green-900 border-green-300 hover:bg-green-200'
+			: 'bg-yellow-100 text-yellow-900 border-yellow-300 hover:bg-yellow-200'
+
+	const detectBtnLabel = locating
+		? 'Detecting…'
+		: (detectedDistrict || coords)
+			? (locationLabel || 'My location')
+			: 'Detect location'
 
 	return (
 		<div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 flex flex-col">
@@ -97,9 +165,48 @@ export default function Home() {
 								<option key={d} value={d}>{d}</option>
 							))}
 						</select>
+						<button
+							type="button"
+							onClick={detectLocation}
+							disabled={locating}
+							className={`px-4 py-2 rounded-lg border text-sm font-medium shadow-sm transition ${detectBtnClasses}`}
+						>
+							{detectBtnLabel}
+						</button>
 						{error && <div className="text-sm text-red-600 bg-red-50 px-4 py-2 rounded-lg border border-red-200">{error}</div>}
 					</div>
 				</div>
+
+				{/* Location Info - small, clean box */}
+				{/* {(coords || addressText || locationError) ? (
+					<div className="bg-white border-2 border-gray-200 rounded-xl p-4 mb-8 shadow-sm">
+						<div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+							<div className="text-sm text-gray-700">
+								<div className="font-semibold mb-1">Your location</div>
+								{coords ? (
+									<div className="text-gray-600">Lat: {coords.lat.toFixed ? coords.lat.toFixed(4) : coords.lat}, Lon: {coords.lon.toFixed ? coords.lon.toFixed(4) : coords.lon}</div>
+								) : null}
+								{addressText ? (
+									<div className="text-gray-600 truncate max-w-full sm:max-w-[520px]">{addressText}</div>
+								) : null}
+							</div>
+							<div className="text-sm flex items-center gap-2">
+								{detectedDistrict ? (
+									<div className="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-green-50 text-green-700 border border-green-200">
+										<span>✅</span>
+										<span>Mapped to: {detectedDistrict}</span>
+									</div>
+								) : null}
+								{!detectedDistrict && locationError ? (
+									<div className="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-yellow-50 text-yellow-800 border border-yellow-200">
+										<span>⚠️</span>
+										<span>{locationError}</span>
+									</div>
+								) : null}
+							</div>
+						</div>
+					</div>
+				) : null} */}
 
 				{/* Key Metrics Section */}
 				{data && (
