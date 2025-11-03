@@ -153,10 +153,10 @@ export default function Dashboard() {
 							<h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">District Dashboard</h1>
 							<p className="text-gray-600">Comprehensive MGNREGA analytics for {district}</p>
 						</div>
-						<div className="flex items-center gap-3">
+						<div className="flex items-center gap-3 w-full md:w-auto">
 							<label className="text-sm font-medium text-gray-700">Financial Year:</label>
 							<select
-								className="border-2 border-gray-300 rounded-lg px-4 py-2 text-sm font-medium text-gray-700 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition shadow-sm"
+								className="border-2 border-gray-300 rounded-lg px-4 py-2 text-sm font-medium text-gray-700 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition shadow-sm w-full md:w-auto"
 								value={selectedYear}
 								onChange={(e) => setSelectedYear(e.target.value)}
 							>
@@ -171,7 +171,7 @@ export default function Dashboard() {
 
 					{/* Major Data Cards */}
 					{data && (
-						<div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+						<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
 							<div className="bg-gradient-to-br from-blue-50 to-blue-100 border-2 border-blue-200 rounded-xl p-4 shadow-lg hover:shadow-xl transition-all">
 								<div className="text-xs uppercase tracking-wide text-blue-700 font-semibold mb-1">Total Active Workers</div>
 								<div className="text-2xl font-bold text-blue-900">{data.totalActiveWorkers?.toLocaleString() || 0}</div>
@@ -202,10 +202,30 @@ export default function Dashboard() {
 			</div>
 
 			{/* Main Content Area - Side by Side */}
-			<div className="flex flex-1 max-w-7xl mx-auto w-full">
+			<div className="flex flex-1 max-w-7xl mx-auto w-full flex-col md:flex-row">
+				{/* Mobile Nav (Horizontal Pills) */}
+				<div className="md:hidden px-4 py-3 bg-white border-b border-gray-200 overflow-x-auto">
+					<div className="flex items-center gap-2 w-max min-w-full">
+						{navItems.map((item) => (
+							<button
+								key={item.id}
+								type="button"
+								onClick={() => setActiveNavItem(item.id)}
+								className={`whitespace-nowrap px-3 py-2 rounded-full text-sm font-medium transition ${
+									activeNavItem === item.id
+										? 'bg-blue-600 text-white shadow'
+										: 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+								}`}
+							>
+								{item.label}
+							</button>
+						))}
+					</div>
+				</div>
+
 				{/* Left Sidebar Navbar */}
-				<div className="w-64 bg-white border-r-2 border-gray-200 shadow-lg min-h-[calc(100vh-250px)]">
-					<div className="p-4 sticky top-20">
+				<div className="hidden md:block md:w-64 bg-white border-r-2 border-gray-200 shadow-lg md:min-h-[calc(100vh-250px)]">
+					<div className="p-4 md:sticky md:top-20">
 						<div className="text-base font-bold text-gray-800 mb-4 flex items-center gap-2">
 							<span>📋</span>
 							<span>Navigation</span>
@@ -233,7 +253,7 @@ export default function Dashboard() {
 				</div>
 
 				{/* Right Content Area */}
-				<main className="flex-1 p-6 bg-transparent">
+				<main className="flex-1 p-4 md:p-6 bg-transparent">
 					{loading && (
 						<div className="text-center py-12">
 							<div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"></div>
